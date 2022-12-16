@@ -18,4 +18,9 @@ public class TestLogging implements TestLoggingInterface {
     public void calculation(int argA, int argB, int argC) {
         System.out.println(String.format("Expected result: executed method: calculation, param: %d, %d, %d", argA, argB, argC));
     }
+
+    @Override
+    public String toString() {
+        return "TestLogging{}";
+    }
 }
