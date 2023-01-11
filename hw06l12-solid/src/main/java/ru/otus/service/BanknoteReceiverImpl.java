@@ -1,7 +1,8 @@
 package ru.otus.service;
 
-import ru.otus.api.domain.Banknote;
-import ru.otus.api.domain.BanknoteCell;
+import ru.otus.domain.Banknote;
+import ru.otus.api.domain.BanknoteValue;
+import ru.otus.api.service.BanknoteCellHolder;
 import ru.otus.api.service.BanknoteReceiver;
 import ru.otus.exceptions.WrongBanknoteValueException;
 
@@ -9,24 +10,24 @@ import java.util.*;
 
 public class BanknoteReceiverImpl implements BanknoteReceiver {
 
-    private final Map<Integer, BanknoteCell> banknoteCells;
-    private final Set<Integer> banknoteValues;
+    BanknoteCellHolder banknoteCellHolder;
+    private final Set<BanknoteValue> banknoteValues;
 
-    public BanknoteReceiverImpl(Map<Integer, BanknoteCell> banknoteCells) {
-        this.banknoteCells = banknoteCells;
-        this.banknoteValues = banknoteCells.keySet();
+    public BanknoteReceiverImpl(BanknoteCellHolder banknoteCellHolder) {
+        this.banknoteCellHolder = banknoteCellHolder;
+        this.banknoteValues = banknoteCellHolder.getBanknoteValues();
     }
 
     @Override
     public void addBanknotes(List<Banknote> banknoteList) throws WrongBanknoteValueException {
         int banknoteListSize = banknoteList.size();
-        Map<Integer, List<Banknote>> banknoteBuffer = banknoteBufferInit();
+        Map<BanknoteValue, List<Banknote>> banknoteBuffer = banknoteBufferInit();
 
         for (int i = 0; i < banknoteListSize; i++) {
             Banknote banknote = banknoteList.get(i);
-            int banknoteValue = banknote.getBanknoteValue();
+            BanknoteValue banknoteValue = banknote.getBanknoteValue();
 
-            if (!banknoteCells.containsKey(banknoteValue)) {
+            if (!banknoteValues.contains(banknoteValue)) {
                 throw new WrongBanknoteValueException("There is no exists " + banknoteValue + " banknote value.");
             }
 
@@ -36,16 +37,16 @@ public class BanknoteReceiverImpl implements BanknoteReceiver {
         addBanknotesByCells(banknoteBuffer);
     }
 
-    private void addBanknotesByCells(Map<Integer, List<Banknote>> banknotesByValue) {
-        for (int banknoteValue : banknoteValues) {
-            banknoteCells.get(banknoteValue).addBanknotes(banknotesByValue.get(banknoteValue));
+    private void addBanknotesByCells(Map<BanknoteValue, List<Banknote>> banknotesByValue) {
+        for (BanknoteValue banknoteValue : banknoteValues) {
+            banknoteCellHolder.getCell(banknoteValue).addBanknotes(banknotesByValue.get(banknoteValue));
         }
     }
 
-    private Map<Integer, List<Banknote>> banknoteBufferInit() {
-        Map<Integer, List<Banknote>> banknoteBuffer = new HashMap<>();
+    private Map<BanknoteValue, List<Banknote>> banknoteBufferInit() {
+        Map<BanknoteValue, List<Banknote>> banknoteBuffer = new HashMap<>();
 
-        for (int key : banknoteValues) {
+        for (BanknoteValue key : banknoteValues) {
             banknoteBuffer.put(key, new ArrayList<>());
         }
 

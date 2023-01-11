@@ -1,8 +1,8 @@
 package ru.otus.domain;
 
 import ru.otus.api.domain.Atm;
-import ru.otus.api.domain.Banknote;
-import ru.otus.api.domain.BanknoteCell;
+import ru.otus.api.domain.BanknoteValue;
+import ru.otus.api.service.BanknoteCellHolder;
 import ru.otus.api.service.BanknoteProvider;
 import ru.otus.api.service.BanknoteReceiver;
 import ru.otus.exceptions.InsufficientBankotesAmount;
@@ -10,35 +10,37 @@ import ru.otus.exceptions.WrongBanknoteValueException;
 import java.util.*;
 
 public class AtmImpl implements Atm {
-    private BanknoteReceiver banknoteReceiver;
-    private BanknoteProvider banknoteProvider;
-    private Map<Integer, BanknoteCell> banknoteCells;
-    public AtmImpl(BanknoteReceiver banknoteReceiver, BanknoteProvider banknoteProvider, Map<Integer, BanknoteCell> banknoteCells) {
+    private final BanknoteReceiver banknoteReceiver;
+    private final BanknoteProvider banknoteProvider;
+    private final Set<BanknoteValue> banknoteValues;
+    private final BanknoteCellHolder banknoteCellHolder;
+    public AtmImpl(BanknoteReceiver banknoteReceiver, BanknoteProvider banknoteProvider, BanknoteCellHolder banknoteCellHolder) {
         this.banknoteReceiver = banknoteReceiver;
         this.banknoteProvider = banknoteProvider;
-        this.banknoteCells = banknoteCells;
+        this.banknoteCellHolder = banknoteCellHolder;
+        this.banknoteValues = banknoteCellHolder.getBanknoteValues();
     }
 
     @Override
     public long getBalance() {
         long totalSumByCells = 0;
 
-        for (BanknoteCell cell: banknoteCells.values()) {
-            totalSumByCells += cell.getSumByCell();
+        for (BanknoteValue banknoteValue: banknoteValues) {
+            totalSumByCells += banknoteCellHolder.getCellBalance(banknoteValue);
         }
 
         return totalSumByCells;
     }
 
     @Override
-    // переименовать параметр
     public boolean addMoney(List<Banknote> amountOfMoney) {
         boolean transactionResult = false;
         try {
             banknoteReceiver.addBanknotes(amountOfMoney);
             transactionResult = true;
         } catch (WrongBanknoteValueException ex) {
-            System.out.println("Wrong banknote value");
+            System.out.println("Banknote verification error occurred during balance top up.");
+            System.out.println(ex.getMessage());
             System.out.println("Operation has interrupted");
         }
         return transactionResult;
@@ -63,7 +65,9 @@ public class AtmImpl implements Atm {
     }
 
     private int getMinBanknoteValue() {
-        TreeMap<Integer, BanknoteCell> banknoteCells = new TreeMap<Integer, BanknoteCell>(this.banknoteCells);
-        return banknoteCells.firstKey();
+        TreeSet<BanknoteValue> banknoteValues = new TreeSet<>(Comparator.comparingInt(banknoteValue -> banknoteValue.getValue()));
+        //TreeMap<BanknoteValue, BanknoteCell> banknoteCells = new TreeMap<BanknoteValue, BanknoteCell>(Comparator.comparingInt(banknoteValue -> banknoteValue.getValue()));
+        banknoteValues.addAll(this.banknoteValues);
+        return banknoteValues.first().getValue();
     }
 }

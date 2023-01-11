@@ -1,5 +1,7 @@
 package ru.otus.api.domain;
 
+import ru.otus.domain.Banknote;
+
 import java.util.List;
 
 public interface Atm {

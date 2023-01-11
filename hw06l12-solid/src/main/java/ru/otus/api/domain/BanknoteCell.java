@@ -1,5 +1,6 @@
 package ru.otus.api.domain;
 
+import ru.otus.domain.Banknote;
 import ru.otus.exceptions.InsufficientBankotesAmount;
 import java.util.List;
 
