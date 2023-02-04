@@ -88,7 +88,7 @@ public class Message {
     }
 
     public ObjectForMessage getField13() {
-        return field13;
+        return field13.copy();
     }
 
     @Override
@@ -236,7 +236,7 @@ public class Message {
         }
 
         public Message build() {
-            return new Message(id, field1, field2, field3, field4, field5, field6, field7, field8, field9, field10, field11, field12, field13.copy());
+            return new Message(id, field1, field2, field3, field4, field5, field6, field7, field8, field9, field10, field11, field12, field13);
         }
     }
 }
