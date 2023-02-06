@@ -1,13 +1,15 @@
 package ru.otus.dataprocessor;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import ru.otus.model.Measurement;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.Arrays;
 import java.util.List;
-import com.google.gson.Gson;
-import com.google.gson.stream.JsonReader;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 
 public class ResourcesFileLoader implements Loader {
 
@@ -18,17 +20,22 @@ public class ResourcesFileLoader implements Loader {
     }
 
     @Override
-    public List<Measurement> load() {
+    public List<Measurement> load() throws IOException {
+        List<Measurement> measurements;
         InputStream inputStream = ResourcesFileLoader.class.getClassLoader().getResourceAsStream(filename);
+        ObjectMapper mapper = new ObjectMapper();
+        SimpleModule module = new SimpleModule();
+
+        module.addDeserializer(Measurement.class, new MeasurementDeserializer());
+        mapper.registerModule(module);
 
         if (inputStream == null) {
             throw new RuntimeException("Resource cannot be found");
         }
-
-        try (inputStream; JsonReader jsonReader = new JsonReader(new InputStreamReader(inputStream))) {
-            return Arrays.asList(new Gson().fromJson(jsonReader, Measurement[].class));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        try (inputStream) {
+            measurements = mapper.readValue(inputStream, new TypeReference<>(){});
         }
+
+        return measurements;
     }
 }

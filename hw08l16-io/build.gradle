@@ -12,6 +12,7 @@ dependencies {
     implementation 'org.glassfish:jakarta.json'
     implementation 'com.google.protobuf:protobuf-java-util'
     implementation "com.google.code.gson:gson"
+    implementation 'com.fasterxml.jackson.core:jackson-databind'
 
     testImplementation 'org.junit.jupiter:junit-jupiter-api'
     testImplementation 'org.junit.jupiter:junit-jupiter-engine'
