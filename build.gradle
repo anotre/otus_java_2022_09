@@ -1,6 +1,9 @@
 plugins {
     id "io.spring.dependency-management" version "1.0.11.RELEASE"
     id 'com.github.johnrengelman.shadow' version '7.1.2' apply false
+    id "org.springframework.boot" version "2.7.2" apply false
+    id "com.google.cloud.tools.jib" version "3.2.1" apply false
+    id "fr.brouillard.oss.gradle.jgitver" version "0.10.0-rc03" apply false
 }
 
 allprojects {
@@ -19,9 +22,10 @@ allprojects {
                 mavenBom "org.testcontainers:testcontainers-bom:1.17.3"
                 mavenBom "com.google.protobuf:protobuf-bom:3.21.1"
             }
-            dependency "com.google.guava:guava:31.1-jre"
-            dependency "org.openjdk.jmh:jmh-core:1.35"
-            dependency "org.openjdk.jmh:jmh-generator-annprocess:1.35"
+            dependency("com.google.guava:guava:${Versions.guava}")
+            dependency("org.glassfish:jakarta.json:${Versions.glassfishJson}")
+            dependency("com.google.code.gson:gson:${Versions.gson}")
+
         }
     }
 
@@ -48,4 +52,9 @@ task managedVersions {
             println it
         }
     }
+}
+
+//gradle -q hello
+task hello {
+    println 'Hello world!'
 }
